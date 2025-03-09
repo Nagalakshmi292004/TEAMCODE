@@ -1,7 +1,33 @@
 import google.generativeai as palm
 
+import google.generativeai as genai
+
+genai.configure(api_key="AIzaSyAL6mYFHNCpT-tn-VEXBZCCxH_EF81-618")
 
 palm.configure(api_key='AIzaSyByzAEjy5dAXf9y0-oPU4pTBMATMgaiAgE')  
+import os
+import google.generativeai as genai
+
+# Get API key from environment variable
+api_key = os.getenv("GOOGLE_API_KEY")
+
+# Check if API key is available
+if not api_key:
+    raise ValueError("❌ API Key is missing! Please set GOOGLE_API_KEY in environment variables.")
+
+# Configure Generative AI with API key
+genai.configure(api_key=api_key)
+
+# Import other dependencies
+import flask
+import pandas as pd
+
+# Rest of your code...
+def main():
+    print("✅ AI Symptom Checker is running...")
+
+if __name__ == "__main__":
+    main()
 
 
 def list_available_models():

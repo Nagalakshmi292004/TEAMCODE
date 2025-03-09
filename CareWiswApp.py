@@ -1,13 +1,22 @@
+import os
 import streamlit as st
 import google.generativeai as palm
 
+# Get API key from environment variable
+api_key = os.getenv("GOOGLE_API_KEY")
 
-palm.configure(api_key='AIzaSyByzAEjy5dAXf9y0-oPU4pTBMATMgaiAgE')  
+# Check if API key is available
+if not api_key:
+    st.error("❌ API Key is missing! Please set GOOGLE_API_KEY in your environment variables.")
+    st.stop()  # Stop execution if API key is missing
+
+# Configure Generative AI with API key
+palm.configure(api_key=api_key)
 
 def list_available_models():
     """List available models in the project and return them as a list."""
     try:
-        models = list(palm.list_models())  
+        models = list(palm.list_models())
         return models
     except Exception as e:
         st.error(f"❌ Error listing models: {str(e)}")
@@ -25,40 +34,20 @@ def get_symptom_advice(symptom_description, model_name):
 # Streamlit UI
 st.set_page_config(page_title="CareWise AI", page_icon="🏥", layout="wide")
 
-# Custom CSS for styling
-st.markdown("""
-    <style>
-    .header {
-        font-size: 36px;
-        font-weight: bold;
-        text-align: center;
-        color: #4CAF50;
-    }
-    .stSuccess {
-        background-color: #20B2AA; /* Light Sea Blue */
-        color: white;
-        padding: 16px; /* Increased padding */
-        border-radius: 8px;
-        border: 1px solid #20B2AA;
-        font-size: 18px; /* Increased font size */
-        line-height: 1.6; /* Improved line spacing */
-        margin-top: 10px; /* Added margin for spacing */
-    }
-    </style>
-""", unsafe_allow_html=True)
+# Header section
+st.markdown('<h1 style="text-align: center; color: #4CAF50;">🏥 CareWise AI</h1>', unsafe_allow_html=True)
 
-# Header section with an engaging background and icon
-st.markdown('<div class="header">🏥 CareWise AI </div>', unsafe_allow_html=True)
-
-# Info section with a clear description and icon
+# Info section
 st.markdown("""
-    <p style="font-size: 18px; text-align: center; color: #555;">Describe your symptoms below, and get personalized medical advice from our AI system powered by Google's Generative AI.</p>
+    <p style="font-size: 18px; text-align: center; color: #555;">
+        Describe your symptoms below, and get personalized medical advice from our AI system powered by Google's Generative AI.
+    </p>
     <div style="text-align: center;">
         <span style="font-size: 48px;">🩺</span>
     </div>
 """, unsafe_allow_html=True)
 
-# User input for symptoms with a styled text area
+# User input
 user_input = st.text_area(
     "💬 Describe your symptoms:",
     "",
@@ -68,32 +57,29 @@ user_input = st.text_area(
     placeholder="Example: I have a fever, headache, and body aches..."
 )
 
-# Stylish button to trigger advice generation
+# Button to get medical advice
 if st.button("Get Medical Advice", use_container_width=True):
     if user_input:
-        # Show loading spinner while processing the request
         with st.spinner("🔍 Generating advice... Please wait."):
-            # Show available models
             models = list_available_models()
 
             if models:
-                # Select model from the list (default to the first model)
                 preferred_model = next(
                     (m.name for m in models if 'gemini-1.5-pro-latest' in m.name), models[0].name
                 )
 
                 st.write(f"✨ Using model: {preferred_model}")
 
-                # Get AI advice based on the user's symptoms
+                # Get AI advice based on symptoms
                 advice = get_symptom_advice(user_input, preferred_model)
                 st.subheader("💡 AI's Suggestion:")
-                st.markdown(f'<div class="stSuccess">{advice}</div>', unsafe_allow_html=True)  # Light Sea Blue background
+                st.success(advice)  # Styled output
             else:
                 st.error("❌ No models available. Please check your credentials or GCP settings.")
     else:
         st.warning("⚠️ Please enter your symptoms for analysis.")
 
-# Footer with some extra information and contact
+# Footer
 st.markdown("""
     <hr>
     <p style="text-align: center; font-size: 14px; color: #777;">
