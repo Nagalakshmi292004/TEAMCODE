@@ -8,7 +8,7 @@ api_key = os.getenv("GOOGLE_API_KEY")
 
 # Check if API key is available
 if not api_key:
-    st.error("❌ API Key is missing! Please set GOOGLE_API_KEY in your environment variables.")
+    st.error("API Key is missing! Please set GOOGLE_API_KEY in your environment variables.")
     st.stop()
 
 # Configure Generative AI with API key
@@ -20,7 +20,7 @@ def list_available_models():
         models = list(palm.list_models())
         return models
     except Exception as e:
-        st.error(f"❌ Error listing models: {str(e)}")
+        st.error(f" Error listing models: {str(e)}")
         return []
 
 def get_symptom_advice(symptom_description, model_name):
@@ -28,52 +28,58 @@ def get_symptom_advice(symptom_description, model_name):
     try:
         model = palm.GenerativeModel(model_name)
         response = model.generate_content(symptom_description)
-        return response.text if response else "⚠️ No advice generated."
+        return response.text if response else "No advice generated."
     except Exception as e:
-        return f"❌ An error occurred: {str(e)}"
+        return f" An error occurred: {str(e)}"
 
 def recognize_speech():
     """Capture voice input and return transcribed text."""
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
-        st.info("🎤 Listening... Please speak now.")
+        st.info("Listening... Please speak now.")
         try:
             recognizer.adjust_for_ambient_noise(source)  # Helps with background noise
             audio = recognizer.listen(source, timeout=5)
             text = recognizer.recognize_google(audio)  # Convert speech to text
             return text
         except sr.UnknownValueError:
-            return "⚠️ Could not understand audio."
+            return " Could not understand audio."
         except sr.RequestError:
-            return "❌ Speech recognition service unavailable."
+            return " Speech recognition service unavailable."
         except Exception as e:
-            return f"❌ Error: {str(e)}"
+            return f"Error: {str(e)}"
 
 # Initialize session state for user input if not already present
 if "user_input" not in st.session_state:
     st.session_state.user_input = ""
 
 # Streamlit UI
-st.set_page_config(page_title="CareWise AI", page_icon="🏥", layout="wide")
+st.set_page_config(page_title="Health Advisor", page_icon="🏥", layout="wide")
 
-# Header section
-st.markdown('<h1 style="text-align: center; color: #4CAF50;">🏥 CareWise AI</h1>', unsafe_allow_html=True)
+# Load and display the provided image as page icon
+from PIL import Image
+image_path = "/mnt/data/download.jpg"  # Ensure correct path to uploaded image
+if os.path.exists(image_path):
+    st.image(image_path, width=150)
+
+# Header section (with blue color)
+st.markdown('<h1 style="text-align: center; color: #007BFF;">🏥 Health Advisor</h1>', unsafe_allow_html=True)
 
 # Info section
 st.markdown("""
     <p style="font-size: 18px; text-align: center; color: #555;">
-        Describe your symptoms below by typing or using voice input, and get personalized medical advice from our AI system.
+        Describe your symptoms below by typing or using voice input.
     </p>
-    <div style="text-align: center;">
-        <span style="font-size: 48px;">🩺</span>
-    </div>
 """, unsafe_allow_html=True)
 
+# Fixing the emoji rendering issue
+st.markdown('<div style="text-align: center; font-size: 48px;">🩺</div>', unsafe_allow_html=True)
+
 # Voice Input Button
-if st.button("🎙️ Speak Symptoms"):
+if st.button(" Speak Symptoms"):
     speech_text = recognize_speech()
-    if "❌" not in speech_text and "⚠️" not in speech_text:
-        st.success(f"📝 Transcribed Text: {speech_text}")
+    if "" not in speech_text and "" not in speech_text:
+        st.success(f" Transcribed Text: {speech_text}")
         st.session_state.user_input = speech_text  # Store speech input
         st.rerun()  # Force UI update
     else:
@@ -81,21 +87,22 @@ if st.button("🎙️ Speak Symptoms"):
 
 # Text area for user input (Now updates dynamically)
 user_input = st.text_area(
-    "💬 Describe your symptoms:",
+    
+    "Enter your symptoms:",
     value=st.session_state.user_input,
     height=150,
     max_chars=500,
     help="Please provide as much detail as possible for accurate advice.",
-    placeholder="Example: I have a fever, headache, and body aches..."
+    placeholder="Prompt be like I amsuffering from fever, headache,..."
 )
 
 # Update session state with any manual changes to the text area
 st.session_state.user_input = user_input
 
 # Button to get medical advice
-if st.button("Get Medical Advice", use_container_width=True):
+if st.button("Medical Advice", use_container_width=True):
     if st.session_state.user_input.strip():
-        with st.spinner("🔍 Generating advice... Please wait."):
+        with st.spinner(" Generating advice... Please wait."):
             models = list_available_models()
 
             if models:
@@ -103,21 +110,13 @@ if st.button("Get Medical Advice", use_container_width=True):
                     (m.name for m in models if 'gemini-1.5-pro-latest' in m.name), models[0].name
                 )
 
-                st.write(f"✨ Using model: {preferred_model}")
+                st.write(f" Using model: {preferred_model}")
 
                 # Get AI advice based on symptoms
                 advice = get_symptom_advice(st.session_state.user_input, preferred_model)
-                st.subheader("💡 AI's Suggestion:")
+                st.subheader(" AI's Suggestion:")
                 st.success(advice)
             else:
-                st.error("❌ No models available. Please check your credentials or GCP settings.")
+                st.error(" No models available. Please check your credentials or GCP settings.")
     else:
-        st.warning("⚠️ Please enter or speak your symptoms for analysis.")
-
-# Footer
-st.markdown("""
-    <hr>
-    <p style="text-align: center; font-size: 14px; color: #777;">
-        Powered by <a href="https://cloud.google.com/ai" target="_blank">Google Cloud AI</a> | Designed for quick medical assistance.
-    </p>
-""", unsafe_allow_html=True)
+        st.warning(" Please enter or speak your symptoms for analysis.")
