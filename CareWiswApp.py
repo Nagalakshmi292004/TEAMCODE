@@ -9,7 +9,8 @@ from fpdf import FPDF
 import datetime
 
 # ✅ Securely get API key from .env file
-api_key = os.getenv("GOOGLE_API_KEY")
+api_key = "" 
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 if not api_key:
     st.error("API Key is missing! Please set GOOGLE_API_KEY in your environment variables.")
