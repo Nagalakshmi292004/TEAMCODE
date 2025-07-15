@@ -2,9 +2,9 @@ import google.generativeai as palm
 
 import google.generativeai as genai
 
-genai.configure(api_key="AIzaSyAL6mYFHNCpT-tn-VEXBZCCxH_EF81-618")
+genai.configure(api_key="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")
 
-palm.configure(api_key='AIzaSyByzAEjy5dAXf9y0-oPU4pTBMATMgaiAgE')  
+palm.configure(api_key='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')  
 import os
 import google.generativeai as genai
 
