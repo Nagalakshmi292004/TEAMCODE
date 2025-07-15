@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 import os
 import streamlit as st
 import google.generativeai as palm
@@ -6,9 +8,8 @@ from PIL import Image
 from fpdf import FPDF
 import datetime
 
-# API Key
-api_key = "AIzaSyByWXtFUcb2mUzhNtCgaCBsVqHBCQqpB_8"
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+# ✅ Securely get API key from .env file
+api_key = os.getenv("GOOGLE_API_KEY")
 
 if not api_key:
     st.error("API Key is missing! Please set GOOGLE_API_KEY in your environment variables.")
